@@ -3,7 +3,10 @@ import numpy as np
 
 net = cv2.dnn.readNet('yolov3.weights', 'yolov3.cfg')
 layer_names = net.getLayerNames()
-output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+try:
+    output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers().flatten()]
+except AttributeError:
+    output_layers = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 classes = []
 with open('coco.names', 'r') as f:
     classes = [line.strip() for line in f.readlines()]
@@ -44,6 +47,7 @@ if len(indexes) > 0:
         cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
         cv2.putText(image, label + " " + confidence, (x, y + 20), cv2.FONT_HERSHEY_PLAIN, 2, color, 2)
 
-cv2.imshow('Image', image)
+cv2.imwrite('output.jpg', image)
+
 cv2.waitKey(0)
 cv2.destroyAllWindows()
